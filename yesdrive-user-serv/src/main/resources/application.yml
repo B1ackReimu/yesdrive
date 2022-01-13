@@ -1,0 +1,14 @@
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.44.21:8848
+        heart-beat-interval: 5000
+        heart-beat-timeout: 20000
+        namespace: dev
+        group: myGroup
+        metadata:
+          mydata: abc
+
+  application:
+    name: yesdrive-user-serv
