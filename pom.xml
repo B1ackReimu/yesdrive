@@ -10,6 +10,7 @@
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>yesdrive-user-serv</module>
+        <module>yesdrive-file-read-serv</module>
     </modules>
 
     <parent>
