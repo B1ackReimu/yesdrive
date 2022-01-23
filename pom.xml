@@ -11,6 +11,7 @@
     <modules>
         <module>yesdrive-user-serv</module>
         <module>yesdrive-file-read-serv</module>
+        <module>yesdrive-aop-demo</module>
     </modules>
 
     <parent>
