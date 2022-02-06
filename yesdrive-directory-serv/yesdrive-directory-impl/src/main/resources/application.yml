@@ -1,0 +1,13 @@
+
+spring:
+  application:
+    name: yesdrive-directory-impl
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://192.168.44.253:3306/directory
+    username: amdyes
+    password: amdyes
+server:
+  port: 20000
+mybatis:
+  mapper-locations: classpath:/
