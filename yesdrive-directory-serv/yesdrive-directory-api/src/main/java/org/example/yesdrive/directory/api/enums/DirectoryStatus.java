@@ -12,8 +12,8 @@ public enum DirectoryStatus {
     RECYCLE_BIN(0b1000, "回收站"), SHARE(0b10000, "分享"),
     STAR_AND_SHARE(STAR.code + SHARE.code, "星标+分享");
 
-    private int code;
-    private String description;
+    private final int code;
+    private final String description;
 
     public static DirectoryStatus convert(int code) {
         return Stream.of(values()).filter(bean -> bean.code == code).findFirst().orElse(UNKNOWN);

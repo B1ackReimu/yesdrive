@@ -10,10 +10,10 @@ import java.util.Date;
 @Getter
 public class DirectoryInfo {
 
-    private int directoryId;
+    private int id;
     private int userId;
     private String directoryName;
-    private int parentId;
+    private int pid;
     private int status;
     private Date creteTime;
     private Date updateTime;

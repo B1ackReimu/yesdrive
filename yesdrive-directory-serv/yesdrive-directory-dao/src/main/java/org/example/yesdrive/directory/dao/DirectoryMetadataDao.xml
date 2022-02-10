@@ -5,13 +5,13 @@
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="user_id" jdbcType="INTEGER" property="userId" />
     <result column="directory_name" jdbcType="VARCHAR" property="directoryName" />
-    <result column="directory_status" jdbcType="INTEGER" property="directoryStatus" />
+    <result column="pid" jdbcType="INTEGER" property="pid" />
+    <result column="status" jdbcType="INTEGER" property="status" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
-    <result column="parent_id" jdbcType="INTEGER" property="parentId" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, user_id, directory_name, directory_status, create_time, update_time, parent_id
+    id, user_id, directory_name, pid, `status`, create_time, update_time
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
@@ -24,11 +24,11 @@
     where id = #{id,jdbcType=INTEGER}
   </delete>
   <insert id="insert" keyColumn="id" keyProperty="id" parameterType="org.example.yesdrive.directory.dao.entity.DirectoryMetadata" useGeneratedKeys="true">
-    insert into directory_metadata (user_id, directory_name, directory_status, 
-      create_time, update_time, parent_id
+    insert into directory_metadata (user_id, directory_name, pid, 
+      `status`, create_time, update_time
       )
-    values (#{userId,jdbcType=INTEGER}, #{directoryName,jdbcType=VARCHAR}, #{directoryStatus,jdbcType=INTEGER}, 
-      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{parentId,jdbcType=INTEGER}
+    values (#{userId,jdbcType=INTEGER}, #{directoryName,jdbcType=VARCHAR}, #{pid,jdbcType=INTEGER}, 
+      #{status,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
       )
   </insert>
   <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="org.example.yesdrive.directory.dao.entity.DirectoryMetadata" useGeneratedKeys="true">
@@ -40,17 +40,17 @@
       <if test="directoryName != null">
         directory_name,
       </if>
-      <if test="directoryStatus != null">
-        directory_status,
+      <if test="pid != null">
+        pid,
+      </if>
+      <if test="status != null">
+        `status`,
       </if>
       <if test="createTime != null">
         create_time,
       </if>
       <if test="updateTime != null">
         update_time,
-      </if>
-      <if test="parentId != null">
-        parent_id,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -60,17 +60,17 @@
       <if test="directoryName != null">
         #{directoryName,jdbcType=VARCHAR},
       </if>
-      <if test="directoryStatus != null">
-        #{directoryStatus,jdbcType=INTEGER},
+      <if test="pid != null">
+        #{pid,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=TIMESTAMP},
       </if>
       <if test="updateTime != null">
         #{updateTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="parentId != null">
-        #{parentId,jdbcType=INTEGER},
       </if>
     </trim>
   </insert>
@@ -83,17 +83,17 @@
       <if test="directoryName != null">
         directory_name = #{directoryName,jdbcType=VARCHAR},
       </if>
-      <if test="directoryStatus != null">
-        directory_status = #{directoryStatus,jdbcType=INTEGER},
+      <if test="pid != null">
+        pid = #{pid,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        `status` = #{status,jdbcType=INTEGER},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=TIMESTAMP},
       </if>
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="parentId != null">
-        parent_id = #{parentId,jdbcType=INTEGER},
       </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
@@ -102,10 +102,10 @@
     update directory_metadata
     set user_id = #{userId,jdbcType=INTEGER},
       directory_name = #{directoryName,jdbcType=VARCHAR},
-      directory_status = #{directoryStatus,jdbcType=INTEGER},
+      pid = #{pid,jdbcType=INTEGER},
+      `status` = #{status,jdbcType=INTEGER},
       create_time = #{createTime,jdbcType=TIMESTAMP},
-      update_time = #{updateTime,jdbcType=TIMESTAMP},
-      parent_id = #{parentId,jdbcType=INTEGER}
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

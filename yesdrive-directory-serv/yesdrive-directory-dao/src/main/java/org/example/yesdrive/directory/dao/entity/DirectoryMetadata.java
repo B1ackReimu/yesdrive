@@ -16,13 +16,13 @@ public class DirectoryMetadata implements Serializable {
 
     private String directoryName;
 
-    private Integer directoryStatus;
+    private Integer pid;
+
+    private Integer status;
 
     private Date createTime;
 
     private Date updateTime;
-
-    private Integer parentId;
 
     private static final long serialVersionUID = 1L;
 }
