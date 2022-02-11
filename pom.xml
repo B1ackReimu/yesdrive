@@ -13,6 +13,7 @@
         <module>yesdrive-file-read-serv</module>
         <module>yesdrive-aop-demo</module>
         <module>yesdrive-directory-serv</module>
+        <module>yesdrive-common-serv</module>
     </modules>
 
     <parent>

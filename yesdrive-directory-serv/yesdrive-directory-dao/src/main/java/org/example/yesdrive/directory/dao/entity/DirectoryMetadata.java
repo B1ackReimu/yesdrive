@@ -2,6 +2,8 @@ package org.example.yesdrive.directory.dao.entity;
 
 import java.io.Serializable;
 import java.util.Date;
+
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
@@ -9,6 +11,7 @@ import lombok.Data;
  * @author 
  */
 @Data
+@AllArgsConstructor
 public class DirectoryMetadata implements Serializable {
     private Integer id;
 
@@ -25,4 +28,5 @@ public class DirectoryMetadata implements Serializable {
     private Date updateTime;
 
     private static final long serialVersionUID = 1L;
+
 }

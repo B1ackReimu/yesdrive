@@ -3,14 +3,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>yesdrive-directory-serv</artifactId>
+        <artifactId>yesdrive-common-serv</artifactId>
         <groupId>org.example</groupId>
         <version>1.0-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>yesdrive-directory-impl</artifactId>
+    <artifactId>yesdrive-common-aspect</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -20,23 +19,12 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>yesdrive-directory-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>yesdrive-directory-dao</artifactId>
+            <artifactId>yesdrive-common-util</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>yesdrive-common-util</artifactId>
-            <version>${project.version}</version>
+            <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
     </dependencies>
-
 </project>
