@@ -37,6 +37,11 @@
             <artifactId>yesdrive-common-util</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>yesdrive-common-aspect</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 </project>
