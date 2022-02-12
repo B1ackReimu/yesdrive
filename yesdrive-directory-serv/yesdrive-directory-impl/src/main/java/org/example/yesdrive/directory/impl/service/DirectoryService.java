@@ -25,6 +25,7 @@ public class DirectoryService {
 
     public void createDirectory(DirectoryInfo directoryInfo) {
         DirectoryMetadata directoryMetadata = infoToMetaConvert.convert(directoryInfo);
+        directoryMetadata.setDirectoryName("a" + directoryMetadata.getDirectoryName());
         directoryMetadataDao.insert(directoryMetadata);
     }
 

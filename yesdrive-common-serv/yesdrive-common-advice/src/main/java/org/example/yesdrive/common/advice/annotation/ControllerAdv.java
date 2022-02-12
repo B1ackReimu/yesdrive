@@ -1,9 +1,9 @@
-package org.example.yesdrive.common.annotation;
+package org.example.yesdrive.common.advice.annotation;
 
 import java.lang.annotation.*;
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface ControllerCut {
+public @interface ControllerAdv {
 }
