@@ -15,9 +15,10 @@ public class RestTemplateConfig {
         RestTemplate restTemplate = new RestTemplate();
         PoolingHttpClientConnectionManager clientConnectionManager = new PoolingHttpClientConnectionManager();
         clientConnectionManager.setMaxTotal(5000);
+        clientConnectionManager.setDefaultMaxPerRoute(5000);
         HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
         requestFactory.setConnectTimeout(10000);
-        requestFactory.setConnectionRequestTimeout(2000);
+        requestFactory.setConnectionRequestTimeout(5000);
 
         requestFactory.setHttpClient(HttpClientBuilder.create().setConnectionManager(clientConnectionManager).build());
         restTemplate.setRequestFactory(requestFactory);

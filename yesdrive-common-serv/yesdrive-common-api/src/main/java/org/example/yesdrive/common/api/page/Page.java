@@ -1,7 +1,5 @@
 package org.example.yesdrive.common.api.page;
 
-import com.azul.crs.com.fasterxml.jackson.annotation.JsonIgnore;
-import jdk.nashorn.internal.ir.annotations.Ignore;
 import lombok.ToString;
 
 import java.util.List;
@@ -32,7 +30,6 @@ public abstract class Page<Q extends Page<Q, R>, R> {
         this.size = size;
     }
 
-    @JsonIgnore
     public Q getQueryCondition() {
         return (Q) this;
     }

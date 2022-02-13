@@ -1,6 +1,5 @@
 package org.example.yesdrive.common.util.vo;
 
-import com.sun.istack.internal.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
@@ -13,7 +12,7 @@ public enum CRVCodeEnum {
     private final int code;
     private final String description;
 
-    public static ControllerResultVo crateCRV(CRVCodeEnum crvCodeEnum, @Nullable Object o) {
+    public static ControllerResultVo crateCRV(CRVCodeEnum crvCodeEnum, Object o) {
         return new ControllerResultVo(crvCodeEnum.code, crvCodeEnum.description, o);
     }
 
