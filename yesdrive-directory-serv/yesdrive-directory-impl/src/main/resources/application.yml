@@ -7,6 +7,9 @@ spring:
     url: jdbc:mysql://192.168.44.252:3306/directory
     username: amdyes
     password: amdyes
+    hikari:
+      minimum-idle: 32
+      maximum-pool-size: 48
 server:
   port: 20000
 mybatis:

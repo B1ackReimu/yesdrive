@@ -13,7 +13,9 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
+import java.sql.Time;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @SpringBootApplication
@@ -26,9 +28,6 @@ public class Test {
     public void setRestTemplate(RestTemplate restTemplate) {
         Test.restTemplate = restTemplate;
     }
-
-/*    @Value("${test.url}")
-    private static String testUrl;*/
 
     private final static Gson GSON = new Gson();
 
@@ -43,20 +42,30 @@ public class Test {
 
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(20);
-        executor.setMaxPoolSize(40);
+        executor.setMaxPoolSize(20);
         executor.initialize();
 
         AtomicInteger integer = new AtomicInteger();
 
         Runnable runnable = () -> {
-            HttpEntity<String> entity = new HttpEntity<>(randomInfo(), headers);
-            assert testUrl != null;
-            restTemplate.postForObject(testUrl, entity, String.class);
+            try {
+                HttpEntity<String> entity = new HttpEntity<>(randomInfo(), headers);
+                assert testUrl != null;
+                restTemplate.postForObject(testUrl, entity, String.class);
+            } finally {
+                integer.incrementAndGet();
+            }
         };
+
         long l = System.currentTimeMillis();
-
-
+        for (int i = 0; i < intValue; i++) {
+            executor.execute(runnable);
+        }
+        while (integer.get()!=intValue){
+            TimeUnit.MICROSECONDS.sleep(1);
+        }
         System.out.println("并发: " + intValue + ", 耗时：" + (System.currentTimeMillis() - l));
+        executor.shutdown();
     }
 
 
