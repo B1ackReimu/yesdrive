@@ -11,10 +11,14 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import javax.annotation.Resource;
 import java.sql.Time;
 import java.util.HashMap;
+import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -29,6 +33,13 @@ public class Test {
         Test.restTemplate = restTemplate;
     }
 
+    private static WebClient webClient;
+
+    @Resource
+    public void setWebClient(WebClient webClient) {
+        Test.webClient = webClient;
+    }
+
     private final static Gson GSON = new Gson();
 
     public static void main(String[] args) throws InterruptedException {
@@ -38,34 +49,55 @@ public class Test {
         System.out.println(testUrl);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        int intValue = Integer.parseInt(args[0]);
+        int coreSize = Integer.parseInt(Objects.requireNonNull(run.getEnvironment().getProperty("test.core-size")));
+        int maxSize = Integer.parseInt(Objects.requireNonNull(run.getEnvironment().getProperty("test.max-size")));
+        System.out.println("coreSize:" + coreSize);
+        System.out.println("maxSize:" + maxSize);
+        int totalRequests = Integer.parseInt(args[0]);
 
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(20);
-        executor.setMaxPoolSize(20);
+        executor.setCorePoolSize(coreSize);
+        executor.setMaxPoolSize(maxSize);
         executor.initialize();
 
         AtomicInteger integer = new AtomicInteger();
+        AtomicInteger everySecond = new AtomicInteger();
+
+        CopyOnWriteArrayList<Long> arrayList = new CopyOnWriteArrayList<>();
+
+        long ll = System.currentTimeMillis();
 
         Runnable runnable = () -> {
+            long start = System.currentTimeMillis();
             try {
                 HttpEntity<String> entity = new HttpEntity<>(randomInfo(), headers);
                 assert testUrl != null;
-                restTemplate.postForObject(testUrl, entity, String.class);
+                //restTemplate.postForObject(testUrl, entity, String.class);
+                webClient.post().body(Mono.just(randomInfo()), String.class).retrieve()
+                        .bodyToMono(String.class).block();
             } finally {
                 integer.incrementAndGet();
+                arrayList.add(System.currentTimeMillis() - start);
+                if (System.currentTimeMillis() - ll <= 1000) {
+                    everySecond.incrementAndGet();
+                }
             }
         };
 
         long l = System.currentTimeMillis();
-        for (int i = 0; i < intValue; i++) {
+        for (int i = 0; i < totalRequests; i++) {
             executor.execute(runnable);
         }
-        while (integer.get()!=intValue){
+        while (integer.get() != totalRequests) {
             TimeUnit.MICROSECONDS.sleep(1);
         }
-        System.out.println("并发: " + intValue + ", 耗时：" + (System.currentTimeMillis() - l));
+        System.out.println("并发: " + totalRequests + ", 耗时：" + (System.currentTimeMillis() - l));
+        System.out.println("List长度：" + arrayList.size());
+        System.out.println("最差值：" + arrayList.stream().max(Long::compareTo).orElse(0L));
+        System.out.println("最好值：" + arrayList.stream().min(Long::compareTo).orElse(0L));
+        System.out.println("1S内发起的数量：" + everySecond.get());
         executor.shutdown();
+        run.close();
     }
 
 
