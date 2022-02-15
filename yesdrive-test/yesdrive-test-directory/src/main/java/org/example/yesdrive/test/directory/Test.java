@@ -47,8 +47,6 @@ public class Test {
         //这个时候要用依赖查找
         String testUrl = run.getEnvironment().getProperty("test.url");
         System.out.println(testUrl);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
         int coreSize = Integer.parseInt(Objects.requireNonNull(run.getEnvironment().getProperty("test.core-size")));
         int maxSize = Integer.parseInt(Objects.requireNonNull(run.getEnvironment().getProperty("test.max-size")));
         System.out.println("coreSize:" + coreSize);
@@ -70,8 +68,8 @@ public class Test {
         Runnable runnable = () -> {
             long start = System.currentTimeMillis();
             try {
-                HttpEntity<String> entity = new HttpEntity<>(randomInfo(), headers);
-                assert testUrl != null;
+                //HttpEntity<String> entity = new HttpEntity<>(randomInfo(), headers);
+                //assert testUrl != null;
                 //restTemplate.postForObject(testUrl, entity, String.class);
                 webClient.post().body(Mono.just(randomInfo()), String.class).retrieve()
                         .bodyToMono(String.class).block();
@@ -88,6 +86,7 @@ public class Test {
         for (int i = 0; i < totalRequests; i++) {
             executor.execute(runnable);
         }
+        System.out.println("executor.execute耗时：" + (System.currentTimeMillis() - l));
         while (integer.get() != totalRequests) {
             TimeUnit.MICROSECONDS.sleep(1);
         }

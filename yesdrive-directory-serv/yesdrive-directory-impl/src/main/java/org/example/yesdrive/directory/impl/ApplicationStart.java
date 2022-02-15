@@ -6,12 +6,15 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
+import java.util.Map;
+import java.util.Properties;
+
 @SpringBootApplication
 @ComponentScan("org.example.yesdrive")
 @MapperScan("org.example.yesdrive.directory.dao")
 @EnableAspectJAutoProxy
 public class ApplicationStart {
     public static void main(String[] args) {
-        SpringApplication.run(ApplicationStart.class,args);
+        SpringApplication.run(ApplicationStart.class, args);
     }
 }

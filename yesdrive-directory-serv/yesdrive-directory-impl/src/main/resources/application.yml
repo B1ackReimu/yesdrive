@@ -15,3 +15,7 @@ server:
 mybatis:
   configuration:
     map-underscore-to-camel-case: true
+directory-controller:
+  executor:
+    core-size: 16
+    max-size: 16
