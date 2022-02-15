@@ -13,6 +13,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.SignalType;
 
 import javax.annotation.Resource;
 import java.sql.Time;
@@ -21,6 +22,7 @@ import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 @SpringBootApplication
 @ComponentScan("org.example.yesdrive")
@@ -65,7 +67,7 @@ public class Test {
 
         long ll = System.currentTimeMillis();
 
-        Runnable runnable = () -> {
+        /*Runnable runnable = () -> {
             long start = System.currentTimeMillis();
             try {
                 //HttpEntity<String> entity = new HttpEntity<>(randomInfo(), headers);
@@ -80,21 +82,24 @@ public class Test {
                     everySecond.incrementAndGet();
                 }
             }
-        };
+        };*/
 
         long l = System.currentTimeMillis();
         for (int i = 0; i < totalRequests; i++) {
-            executor.execute(runnable);
+            //executor.execute(runnable);
+            webClient.post().body(Mono.just(randomInfo()), String.class).retrieve()
+                    .bodyToMono(String.class)
+                    .doFinally(signalType -> integer.incrementAndGet()).subscribe();
         }
         System.out.println("executor.execute耗时：" + (System.currentTimeMillis() - l));
         while (integer.get() != totalRequests) {
             TimeUnit.MICROSECONDS.sleep(1);
         }
         System.out.println("并发: " + totalRequests + ", 耗时：" + (System.currentTimeMillis() - l));
-        System.out.println("List长度：" + arrayList.size());
-        System.out.println("最差值：" + arrayList.stream().max(Long::compareTo).orElse(0L));
-        System.out.println("最好值：" + arrayList.stream().min(Long::compareTo).orElse(0L));
-        System.out.println("1S内发起的数量：" + everySecond.get());
+        //System.out.println("List长度：" + arrayList.size());
+        //System.out.println("最差值：" + arrayList.stream().max(Long::compareTo).orElse(0L));
+        //System.out.println("最好值：" + arrayList.stream().min(Long::compareTo).orElse(0L));
+        //System.out.println("1S内发起的数量：" + everySecond.get());
         executor.shutdown();
         run.close();
     }

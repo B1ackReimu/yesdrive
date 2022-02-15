@@ -16,10 +16,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
 
+import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/directory")
@@ -34,13 +37,18 @@ public class DirectoryController {
         this.directoryService = directoryService;
     }
 
+    private final ThreadPoolTaskExecutor executor;
+
+    {
+        executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(16);
+        executor.setMaxPoolSize(16);
+        executor.initialize();
+    }
+
     @PostMapping("/create")
-    public void create(@RequestBody DirectoryInfo directoryInfo) {
-        System.out.println(directoryInfo.getUserId()+":"+Thread.currentThread().getName());
-        System.out.println(directoryInfo.getUserId()+":"+Thread.currentThread().getName());
-        directoryService.createDirectory(directoryInfo);
-        System.out.println(directoryInfo.getUserId()+":"+Thread.currentThread().getName());
-        System.out.println(directoryInfo.getUserId()+":"+Thread.currentThread().getName());
+    public Mono<String> create(@RequestBody DirectoryInfo directoryInfo) {
+        return Mono.just(directoryService.createDirectory(directoryInfo));
     }
 
     @PostMapping("/query")
