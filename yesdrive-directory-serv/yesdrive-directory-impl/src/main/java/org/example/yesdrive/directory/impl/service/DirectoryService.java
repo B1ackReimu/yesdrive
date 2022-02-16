@@ -24,12 +24,12 @@ public class DirectoryService {
         this.directoryMetadataDao = directoryMetadataDao;
     }
 
-    public String createDirectory(DirectoryInfo directoryInfo) {
+    public Void createDirectory(DirectoryInfo directoryInfo) {
         DirectoryMetadata directoryMetadata = infoToMetaConvert.convert(directoryInfo);
         directoryMetadata.setStatus(DirectoryStatus.NORMAL.getCode());
         directoryMetadata.setDirectoryName("a" + directoryMetadata.getDirectoryName());
         directoryMetadataDao.insert(directoryMetadata);
-        return "";
+        return null;
     }
 
 }

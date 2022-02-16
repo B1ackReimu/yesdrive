@@ -14,6 +14,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.SignalType;
+import reactor.core.scheduler.Schedulers;
 
 import javax.annotation.Resource;
 import java.sql.Time;
@@ -84,12 +85,25 @@ public class Test {
             }
         };*/
 
+        Runnable runnable = () -> webClient.post().body(Mono.fromCallable(Test::randomInfo)
+                        .subscribeOn(Schedulers.boundedElastic()), String.class)
+                .retrieve()
+                .bodyToMono(String.class)
+                .doFinally(signalType -> {
+                    integer.incrementAndGet();
+                }).subscribe();
+
         long l = System.currentTimeMillis();
         for (int i = 0; i < totalRequests; i++) {
+            executor.execute(runnable);
             //executor.execute(runnable);
-            webClient.post().body(Mono.just(randomInfo()), String.class).retrieve()
+            /*webClient.post().body(Mono.fromCallable(Test::randomInfo)
+                            .subscribeOn(Schedulers.boundedElastic()), String.class)
+                    .retrieve()
                     .bodyToMono(String.class)
-                    .doFinally(signalType -> integer.incrementAndGet()).subscribe();
+                    .doFinally(signalType -> {
+                        integer.incrementAndGet();
+                    }).subscribe();*/
         }
         System.out.println("executor.execute耗时：" + (System.currentTimeMillis() - l));
         while (integer.get() != totalRequests) {
