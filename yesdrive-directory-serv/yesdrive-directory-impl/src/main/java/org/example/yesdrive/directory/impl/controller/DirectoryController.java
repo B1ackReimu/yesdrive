@@ -15,8 +15,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 import java.time.Duration;
 import java.util.Objects;
@@ -47,8 +49,10 @@ public class DirectoryController {
     }
 
     @PostMapping("/create")
-    public Mono<String> create(@RequestBody DirectoryInfo directoryInfo) {
-        return Mono.just(directoryService.createDirectory(directoryInfo));
+    public Mono<Void> create(@RequestBody DirectoryInfo directoryInfo) {
+        //System.out.println("creat:"+Thread.currentThread().getName());
+        return Mono.fromCallable(() -> directoryService.createDirectory(directoryInfo))
+                .subscribeOn(Schedulers.boundedElastic());
     }
 
     @PostMapping("/query")

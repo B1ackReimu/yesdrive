@@ -16,11 +16,18 @@ public class WebClientConfig {
     @Value("${test.url}")
     private String testUrl;
 
+    @Value("${webclient.max-conn}")
+    private int maxConn;
+
+    @Value("${webclient.pen-count}")
+    private int penCount;
+
+
     @Bean
     public WebClient webClient() {
         ConnectionProvider connectionProvider = ConnectionProvider.builder("myConnectionPool")
-                .maxConnections(500)
-                .pendingAcquireMaxCount(9500)
+                .maxConnections(maxConn)
+                .pendingAcquireMaxCount(penCount)
                 .build();
         ReactorClientHttpConnector connector = new ReactorClientHttpConnector(HttpClient.create(connectionProvider));
         return WebClient.builder().baseUrl(testUrl)

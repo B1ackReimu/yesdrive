@@ -1,8 +1,11 @@
 
 test:
-  url: http://127.0.0.1:20000/directory/create
-  core-size: 20
-  max-size: 20
+  url: http://192.168.44.200:20000/directory/create
+  core-size: 28
+  max-size: 28
 spring:
   application:
     name: yesdrive-test-directory
+webclient:
+  max-conn: 120
+  pen-count: 10000
