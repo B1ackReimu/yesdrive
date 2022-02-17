@@ -12,8 +12,11 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         System.out.println(Thread.currentThread().getName());
-        ByteBuf byteBuf = Unpooled.directBuffer(100);
-        byteBuf.writeBytes("hahaha".getBytes(StandardCharsets.UTF_8));
-        ctx.channel().writeAndFlush(byteBuf);
+        ByteBuf byteBuf;
+        for (int i = 0; i < 1; i++) {
+            byteBuf = Unpooled.directBuffer(10);
+            byteBuf.writeBytes("hahaha".getBytes(StandardCharsets.UTF_8));
+            ctx.channel().writeAndFlush(byteBuf);
+        }
     }
 }

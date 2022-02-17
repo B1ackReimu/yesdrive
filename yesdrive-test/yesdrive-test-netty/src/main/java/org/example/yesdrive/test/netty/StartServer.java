@@ -8,6 +8,8 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import org.example.yesdrive.test.netty.handler.FirstHandler;
+import org.example.yesdrive.test.netty.handler.SecondHandler;
 
 public class StartServer {
 
@@ -21,7 +23,9 @@ public class StartServer {
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel ch) throws Exception {
-                            ch.pipeline().addLast(new TestHandler());
+                            //ch.pipeline().addLast(new TestHandler());
+                            ch.pipeline().addLast(new FirstHandler());
+                            ch.pipeline().addLast(new SecondHandler());
                         }
                     })
                     .option(ChannelOption.SO_BACKLOG, 128)
