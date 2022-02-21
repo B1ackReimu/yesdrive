@@ -11,6 +11,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>yesdrive-mount-serv</artifactId>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>yesdrive-mount-dao</module>
+        <module>yesdrive-mount-api</module>
+        <module>yesdrive-mount-impl</module>
+    </modules>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>

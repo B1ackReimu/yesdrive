@@ -15,7 +15,6 @@
         <module>yesdrive-common-serv</module>
         <module>yesdrive-test</module>
         <module>yesdrive-mount-serv</module>
-        <module>yesdrive-mount-serv/yesdrive-mount-api</module>
     </modules>
 
     <parent>
