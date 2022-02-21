@@ -16,7 +16,8 @@ public class PooledProcessBuilder {
     }
 
     public void recycler(ProcessBuilderHandler processBuilderHandler) {
-        processBuilderHandler.getProcessBuilder().command().clear();
+        ProcessBuilder processBuilder = processBuilderHandler.getProcessBuilder();
+        processBuilder.command().clear();
         processBuilderHandler.recycle();
     }
 
