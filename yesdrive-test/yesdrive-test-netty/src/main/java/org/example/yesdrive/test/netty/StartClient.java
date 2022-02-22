@@ -9,7 +9,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 public class StartClient {
 
     public static void main(String[] args) {
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < 1; i++) {
 
             NioEventLoopGroup workerGroup = new NioEventLoopGroup();
             Bootstrap bootstrap = new Bootstrap();
