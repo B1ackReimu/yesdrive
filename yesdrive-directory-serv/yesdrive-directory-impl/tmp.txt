@@ -1,0 +1,40 @@
+Tell the subclass to refresh the internal bean factory.//告诉子类刷新内部 bean 工厂。
+①AbstractApplicationContext.obtainFreshBeanFactory() return ConfigurableListableBeanFactory
+①调用 refreshBeanFactory() 调用 子类GenericApplicationContext.refreshBeanFactory，refreshBeanFactory的操作
+①if (!this.refreshed.compareAndSet(false, true)) {
+			throw new IllegalStateException(
+					"GenericApplicationContext does not support multiple refresh attempts: just call 'refresh' once");
+		}
+		this.beanFactory.setSerializationId(getId());
+CAS：GenericApplicationContext 不支持多次刷新尝试：只需调用 'refresh' 一次
+②this.beanFactory.setSerializationId(getId()); 把此上下文的唯一（Unique）id赋值给工厂
+②调用 getBeanFactory() 调用 子类GenericApplicationContext.getBeanFactory() return this.beanFactory
+
+②AbstractApplicationContext.prepareBeanFactory(beanFactory) 准备 bean 工厂以在此上下文中使用。beanFactory的类型为DefaultListableBeanFactory
+①beanFactory.setBeanClassLoader(getClassLoader()); 告诉内部 bean 工厂使用上下文的类加载器等。
+②是否加载Spel解析器
+③beanFactory.addPropertyEditorRegistrar(new ResourceEditorRegistrar(this, getEnvironment()));
+④beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this)); 使用上下文回调配置bean工厂
+⑤忽略给定的依赖接口以进行自动装配。
+        beanFactory.ignoreDependencyInterface(EnvironmentAware.class);
+		beanFactory.ignoreDependencyInterface(EmbeddedValueResolverAware.class);
+		beanFactory.ignoreDependencyInterface(ResourceLoaderAware.class);
+		beanFactory.ignoreDependencyInterface(ApplicationEventPublisherAware.class);
+		beanFactory.ignoreDependencyInterface(MessageSourceAware.class);
+		beanFactory.ignoreDependencyInterface(ApplicationContextAware.class);
+		beanFactory.ignoreDependencyInterface(ApplicationStartup.class);
+⑥使用相应的自动装配值注册一个特殊的依赖类型。
+		beanFactory.registerResolvableDependency(BeanFactory.class, beanFactory);
+		beanFactory.registerResolvableDependency(ResourceLoader.class, this);
+		beanFactory.registerResolvableDependency(ApplicationEventPublisher.class, this);
+		beanFactory.registerResolvableDependency(ApplicationContext.class, this);
+⑦beanFactory.addBeanPostProcessor(new ApplicationListenerDetector(this)); 将用于检测内部 bean 的早期后处理器注册为 ApplicationListener。
+⑧检测 LoadTimeWeaver 并准备编织（如果找到）。
+⑨注册默认环境 bean。
+
+③postProcessBeanFactory(beanFactory) 允许在上下文子类中对 bean 工厂进行后处理。
+这里调用的是AnnotationConfigReactiveWebServerApplicationContext.postProcessBeanFactory
+①super.postProcessBeanFactory(beanFactory) 调的是AbstractApplicationContext.postProcessBeanFactory 其实是个空方法
+②判断this.basePackages是否空，如果不空，则用this.scanner.scan(this.basePackages); 在指定的基本包中执行扫描。
+这里的scanner类型是ClassPathBeanDefinitionScanner，scan方法 doScan进行扫描
+循环遍历basePackages，调用①ClassPathScanningCandidateComponentProvider.findCandidateComponents调用scanCandidateComponents
