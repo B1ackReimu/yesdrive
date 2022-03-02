@@ -38,3 +38,92 @@ CAS：GenericApplicationContext 不支持多次刷新尝试：只需调用 'refr
 ②判断this.basePackages是否空，如果不空，则用this.scanner.scan(this.basePackages); 在指定的基本包中执行扫描。
 这里的scanner类型是ClassPathBeanDefinitionScanner，scan方法 doScan进行扫描
 循环遍历basePackages，调用①ClassPathScanningCandidateComponentProvider.findCandidateComponents调用scanCandidateComponents
+这一步查找到候选bean列表
+
+isCandidateComponent确定给定的beanDefinition是否有候选资格
+符合资格的条件metadata.isIndependent() && (metadata.isConcrete() || (metadata.isAbstract() && metadata.hasAnnotatedMethods(Lookup.class.getName())))
+这里的metadata类型为SimpleAnnotationMetadata
+isIndependent()判断底层类是否独立，即是顶层类还是可以独立于封闭类构造的嵌套类（静态内部类）
+metadata.isConcrete()底层类是否代表一个具体类，即既不是接口也不是抽象类。
+metadata.isAbstract()底层类是否被标记为抽象
+metadata.hasAnnotatedMethods(Lookup.class.getName())判断底层类是否具有使用给定注释类型注释（或元注释）的任何方法
+如果具备候选资格，则把ScannedGenericBeanDefinition（此类不会提前加载 bean Class 。而是从“.class”文件本身检索所有相关元数据，并使用 ASM ClassReader 进行解析）
+加入到candidates中
+
+doScan方法的第②步：获取到候选bean列表candidates后遍历内容，for (BeanDefinition candidate : candidates)，每此遍历都有以下操作：
+ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(candidate);
+↑↑描述 Spring 管理的 bean 的范围特征，包括范围名称和范围代理行为。默认作用域是“单例”，默认是不创建作用域代理。
+this.scopeMetadataResolver类型是AnnotationScopeMetadataResolver，默认情况下检查 bean 类上是否存在 Spring 的@Scope注释。
+candidate.setScope(scopeMetadata.getScopeName());
+String beanName = this.beanNameGenerator.generateBeanName(candidate, this.registry);
+this.beanNameGenerator类型是AnnotationBeanNameGenerator，作用是为给定的 BeanDefinition生成一个 bean 名称
+AnnotationBeanNameGenerator.determineBeanNameFromAnnotation生成名称规则
+AnnotationBeanNameGenerator.isStereotypeWithNameValue返回注解是否有资格自定义名称
+能够bean自定义名称必须满足以下条件
+(①等于或包含org.springframework.stereotype.Component或等于javax.annotation.ManagedBean或等于javax.inject.Named
+②注解的包含"value"属性)
+如果有资格自定义名称，则把value值拿出来且返回
+
+doScan方法的第③步：postProcessBeanDefinition((AbstractBeanDefinition) candidate, beanName); 为候选bd应用默认的配置
+除了通过扫描组件类检索到的内容之外，将进一步的设置应用于给定的BeanDefinition。
+
+doScan方法的第④步：AnnotationConfigUtils.processCommonDefinitionAnnotations((AnnotatedBeanDefinition) candidate);
+判断bd的注解中是否用了@Lazy、@Primary、@DependsOn、@Role、@Description，如果有则设置相应的bd字段
+
+doScan方法的第⑤步：checkCandidate(beanName, candidate)
+检查bean名称是否冲突，如果bean可以原样注册则返回true，如果存在现有兼容的bd，则返回false，如果冲突则抛出异常
+如果bean可以原样注册，则调用BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(candidate, beanName);
+得到BeanDefinitionHolder，可以注册为内部bean的占位符
+definitionHolder = AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
+beanDefinitions.add(definitionHolder); doScan的局部字段Set<BeanDefinitionHolder> beanDefinitions = new LinkedHashSet<>();
+registerBeanDefinition(definitionHolder, this.registry);  使用给定的注册表(BeanDefinitionRegistry)注册指定的 bean
+registerBeanDefinition调用BeanDefinitionReaderUtils.registerBeanDefinition(definitionHolder, registry);在此方法内调用
+registry.registerBeanDefinition(beanName, definitionHolder.getBeanDefinition());注册registerBeanDefinition，最终调用的是
+DefaultListableBeanFactory的registerBeanDefinition(beanName, beanDefinition)方法，从beanDefinitionMap.get出来判断是否已经注册过
+beanDefinitionMap是一个ConcurrentHashMap<String,BeanDefinition>，key是bean的名称
+如果没有被创建过，则会调用AbstractBeanFactory.hasBeanCreationStarted检查这个工厂的bean创建阶段是否已经开始，即在此期间是否有任何bean被标记为已创建
+如果创建阶段未开始，则执行以下操作
+this.beanDefinitionMap.put(beanName, beanDefinition);
+this.beanDefinitionNames.add(beanName);
+removeManualSingletonName(beanName);
+
+④invokeBeanFactoryPostProcessors(beanFactory) 调用在上下文中注册为 bean 的工厂处理器。
+AbstractApplicationContext.invokeBeanFactoryPostProcessors实例化并调用所有已注册的 BeanFactoryPostProcessor bean，如果给定，则尊重显式顺序。必须在单例实例化之前调用。
+invokeBeanFactoryPostProcessors内会调用PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(beanFactory, getBeanFactoryPostProcessors());
+BeanDefinitionRegistryPostProcessor registryProcessor = (BeanDefinitionRegistryPostProcessor) postProcessor;
+registryProcessor.postProcessBeanDefinitionRegistry(registry); 所有bd都会被加载但是不会有bean被初始化
+这里的registryProcessor类型是SharedMetadataReaderFactoryContextInitializer#CachingMetadataReaderFactoryPostProcessor.postProcessBeanDefinitionRegistry
+在postProcessBeanDefinitionRegistry会先调用register(registry)
+		private void register(BeanDefinitionRegistry registry) {
+			BeanDefinition definition = BeanDefinitionBuilder
+					.genericBeanDefinition(SharedMetadataReaderFactoryBean.class, SharedMetadataReaderFactoryBean::new)
+					.getBeanDefinition();
+			registry.registerBeanDefinition(BEAN_NAME, definition); //注册bd
+		}
+registryProcessors.add(registryProcessor);
+
+**********************
+ConfigurationClassPostProcessor.postProcessBeanDefinitionRegistry 从注册表中的配置类派生更多的 bean 定义。
+ConfigurationClassPostProcessor.processConfigBeanDefinitions 基于Configuration类的注册表构建和验证配置模型。
+		List<BeanDefinitionHolder> configCandidates = new ArrayList<>();
+		String[] candidateNames = registry.getBeanDefinitionNames();
+
+		for (String beanName : candidateNames) {
+			BeanDefinition beanDef = registry.getBeanDefinition(beanName);
+			if (beanDef.getAttribute(ConfigurationClassUtils.CONFIGURATION_CLASS_ATTRIBUTE) != null) {
+				if (logger.isDebugEnabled()) {
+					logger.debug("Bean definition has already been processed as a configuration class: " + beanDef);
+				}
+			}
+			else if (ConfigurationClassUtils.checkConfigurationClassCandidate(beanDef, this.metadataReaderFactory)) {
+				configCandidates.add(new BeanDefinitionHolder(beanDef, beanName)); //如果beanName是启动类则会走到这里
+			}
+		}
+
+		//按先前确定的@Order 值排序（如果适用）
+		configCandidates.sort((bd1, bd2) -> {
+        			int i1 = ConfigurationClassUtils.getOrder(bd1.getBeanDefinition());
+        			int i2 = ConfigurationClassUtils.getOrder(bd2.getBeanDefinition());
+        			return Integer.compare(i1, i2);
+        		});
+**********************
