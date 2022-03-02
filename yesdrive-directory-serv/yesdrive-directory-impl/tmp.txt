@@ -37,7 +37,7 @@ CAS：GenericApplicationContext 不支持多次刷新尝试：只需调用 'refr
 ①super.postProcessBeanFactory(beanFactory) 调的是AbstractApplicationContext.postProcessBeanFactory 其实是个空方法
 ②判断this.basePackages是否空，如果不空，则用this.scanner.scan(this.basePackages); 在指定的基本包中执行扫描。
 这里的scanner类型是ClassPathBeanDefinitionScanner，scan方法 doScan进行扫描
-循环遍历basePackages，调用①ClassPathScanningCandidateComponentProvider.findCandidateComponents调用scanCandidateComponents
+循环遍历basePackages，调用①ClassPathScanningCandidateComponentProvider.findCandidateComponents调用scanCandidateComponents，
 这一步查找到候选bean列表
 
 isCandidateComponent确定给定的beanDefinition是否有候选资格
@@ -126,4 +126,17 @@ ConfigurationClassPostProcessor.processConfigBeanDefinitions 基于Configuration
         			int i2 = ConfigurationClassUtils.getOrder(bd2.getBeanDefinition());
         			return Integer.compare(i1, i2);
         		});
+
+        解析每个 @Configuration 类
+        do -- while
+        parser.parse(candidates); 这里的parser是ConfigurationClassParser
+        ConfigurationClassParser.parse(org.springframework.core.type.AnnotationMetadata, java.lang.String)
+        do -- while 递归处理配置类及其超类层次结构。
+        ConfigurationClassParser.doProcessConfigurationClass //通过从源类中读取注解、成员和方法，应用处理并构建一个完整的ConfigurationClass。
+        判断当前扫描的类注解是否有@Component，如果有，则调用ConfigurationClassParser.processMemberClasses(ConfigurationClass configClass, SourceClass sourceClass,
+                                                                			Predicate<String> filter)
+
+        Set<BeanDefinitionHolder> scannedBeanDefinitions =
+        						this.componentScanParser.parse(componentScan, sourceClass.getMetadata().getClassName());
+        在这一步里面又调用了doScan，用户自定义的组件是在这里被扫描生成BeanDefinition的
 **********************
